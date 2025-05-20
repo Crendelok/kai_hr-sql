@@ -2,8 +2,10 @@
 
 import customtkinter as ctk
 
-from db_connector import connect_db
+from db_connector import all_models
+from models import BaseModel
 from top_bar import top_bar_UI
+from views.GenericTableFrame import GenericTableFrame
 
 
 class HotelApp(ctk.CTk):
@@ -14,10 +16,16 @@ class HotelApp(ctk.CTk):
         self.resizable(True, True)
 
 
-        self.conn = connect_db()
+        (self.depatment,
+         self.positions,
+         self.employees,
+         self.leave_requests,
+         self.employeesActions,
+         self.users
+         ) = all_models()
 
 
-        top_bar_UI(self, self.open_clients, self.open_rooms, self.open_bookings, self.open_services, self.leave_requests)
+        top_bar_UI(self, self.open_department, self.open_positions, self.open_employees, self.open_employees_actions, self.open_leave_requests)
 
         self.content_frame = None
         self.center = ctk.CTkFrame(self)
@@ -28,20 +36,26 @@ class HotelApp(ctk.CTk):
             self.content_frame.destroy()
             self.content_frame = None
 
-    def open_clients(self):
-        print("Хімнати")
+    def open_view(self, model: BaseModel, tittle: str):
+        self.clear_center()
+        self.content_frame = GenericTableFrame(self.center, model, tittle)
+        self.content_frame.pack(fill="both", expand=True)
 
-    def open_rooms(self):
-        print("Кімнати")
 
-    def open_bookings(self):
-        print("Бронювання")
+    def open_department(self):
+        self.open_view(self.depatment, "Департамент")
 
-    def open_services(self):
-        print("Послуги")
+    def open_positions(self):
+        self.open_view(self.positions, "Посади")
 
-    def leave_requests(self):
-        print("Хуйослуги")
+    def open_employees(self):
+        self.open_view(self.employees, "Персонал")
+
+    def open_employees_actions(self):
+        self.open_view(self.employeesActions, "Лог змін")
+
+    def open_leave_requests(self):
+        self.open_view(self.leave_requests, "Лог Відсутності")
 
 
 if __name__ == "__main__":

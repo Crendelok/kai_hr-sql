@@ -1,42 +1,64 @@
-# table_view.py
-
 import customtkinter as ctk
 from tkinter import ttk
 
 class TableView(ctk.CTkFrame):
-    def __init__(self, master, columns, data=None, height=300, on_select=None):
+    def __init__(self, master, columns, column_headers, data=None, height=300, on_select=None):
+        """
+        Args:
+            master: Parent widget
+            columns (list[str]): List of data keys for each column
+            column_headers (list[str]): List of display names for each column header
+            data (list[dict], optional): Initial data rows
+            height (int, optional): Number of visible rows
+            on_select (callable, optional): Callback for row selection
+        """
         super().__init__(master)
 
         self.columns = columns
+        self.keys = columns
         self.data = data or []
         self.on_select = on_select
+        self.data_now = []
 
-        self.tree = ttk.Treeview(self, columns=self.columns, show='headings', height=height)
+        # Create the Treeview
+        self.tree = ttk.Treeview(
+            self,
+            columns=self.columns,
+            show='headings',
+            height=height
+        )
         self.tree.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Додаємо колонки
-        for col in self.columns:
-            self.tree.heading(col, text=col)
+        # Set up headings and column properties
+        for col, header in zip(self.columns, column_headers):
+            self.tree.heading(col, text=header)
             self.tree.column(col, anchor="center", width=120)
 
-        # Подія вибору
+        # Bind selection event if provided
         if self.on_select:
-            self.tree.bind("<<TreeviewSelect>>", lambda e: self.on_select(self.get_selected()))
+            self.tree.bind(
+                "<<TreeviewSelect>>",
+                lambda e: self.on_select(self.get_selected())
+            )
 
-        # Стилізація (не обов'язково, але покращує вигляд)
+        # Optional styling: increase row height
         style = ttk.Style()
         style.configure("Treeview", rowheight=30)
 
-    def populate(self, rows):
-        # Очистити старі дані
-        for row in self.tree.get_children():
-            self.tree.delete(row)
+        # Populate initial data if any
+        if self.data:
+            self.populate(self.data)
 
-        # Додати нові дані
+    def populate(self, rows: list[dict]):
+        """Clear existing rows and insert new data rows."""
+        self.tree.delete(*self.tree.get_children())
+        self.data = rows
         for row in rows:
-            self.tree.insert('', 'end', values=row)
+            values = [row.get(key, "") for key in self.keys]
+            self.tree.insert("", "end", values=values)
 
     def get_selected(self):
+        """Return the values of the currently selected row, or None if no selection."""
         selected = self.tree.selection()
         if not selected:
             return None

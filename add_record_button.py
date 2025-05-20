@@ -1,7 +1,8 @@
 import customtkinter as ctk
+from typing import List
 
 class AddRecordButton(ctk.CTkButton):
-    def __init__(self, master, fields, on_submit, button_text="Додати запис"):
+    def __init__(self, master, fields: List[str], on_submit, button_text="Додати запис"):
         super().__init__(master, text=button_text, command=self.open_form)
         self.fields = fields
         self.on_submit = on_submit
@@ -11,7 +12,7 @@ class AddRecordButton(ctk.CTkButton):
 
 
 class AddFormWindow(ctk.CTkToplevel):
-    def __init__(self, fields, on_submit):
+    def __init__(self, fields: List[str], on_submit):
         super().__init__()
         self.title("Додати запис")
         self.geometry("600x600")
